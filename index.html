@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Simple Calculator</title>
+    </head>
+    <body>
+        <h1>Typescript Calculator</h1>
+
+        <div>
+            <label for="num1">Number 1</label>
+            <input type="text" id="num1" placeholder="Enter Number">
+        </div>
+        <div>
+            <label for="num2">Number 2</label>
+            <input type="text" id="num2" placeholder="Enter Number">
+        </div>
+
+        <div>
+            <label for="operation">operation:</label>
+            <select id="operation">
+                <option value="sum">Sum</option>
+                <option value="subtract">subtract</option>
+                <option value="multiply">multiply</option>
+                <option value="divide">divide</option>
+            </select>
+        </div>
+
+        <button id="calculateBtn">Calcualte</button>
+
+        <h2>Result:<span id="Result"></span></h2>
+
+        <script type="module" src="./build/apps.ts"></script>
+    </body>
+</html>
