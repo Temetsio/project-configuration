@@ -62,5 +62,13 @@ export class Style {
     }
   }
 }
+export class Shape {
+  style: string;
+
+  constructor(style: string = 'black') {
+    this.style = style;
+  }
+}
+
 
 
