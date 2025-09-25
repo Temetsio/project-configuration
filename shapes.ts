@@ -169,6 +169,24 @@ export class Size {
     return `${this.width} x ${this.height}`;
   }
 }
+export abstract class BaseShape implements Shape {
+  style: string;
+
+  constructor(style: string = 'black') {
+    this.style = style;
+  }
+
+  abstract draw(ctx: CanvasRenderingContext2D): void;
+
+  toString(): string {
+    return `Shape with style ${this.style}`;
+  }
+}
+export interface Shape {
+  draw(ctx: CanvasRenderingContext2D): void;
+  toString(): string;
+}
+
 
 
 
