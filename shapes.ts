@@ -76,6 +76,18 @@ export class Shape {
     this.style = style;
   }
 }
+abstract class Shape {
+  abstract draw(ctx: CanvasRenderingContext2D): void;
+}
+export abstract class Shape {
+  style: string;
+
+  constructor(style: string = 'black') {
+    this.style = style;
+  }
+  abstract draw(ctx: CanvasRenderingContext2D): void;
+}
+
 
 
 
