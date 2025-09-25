@@ -142,6 +142,34 @@ export class Circle extends Shape {
     return `Circle with center (${this.center.x}, ${this.center.y}), radius ${this.radius} and style ${this.style}`;
   }
 }
+export class Point {
+  x: number;
+  y: number;
+
+  constructor(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
+
+  toString(): string {
+    return `${this.x}, ${this.y}`;
+  }
+}
+
+export class Size {
+  width: number;
+  height: number;
+
+  constructor(width: number, height: number) {
+    this.width = width;
+    this.height = height;
+  }
+
+  toString(): string {
+    return `${this.width} x ${this.height}`;
+  }
+}
+
 
 
 
