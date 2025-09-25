@@ -69,6 +69,14 @@ export class Shape {
     this.style = style;
   }
 }
+export class Shape {
+  style: string;
+
+  constructor(style: string = 'black') {
+    this.style = style;
+  }
+}
+
 
 
 
