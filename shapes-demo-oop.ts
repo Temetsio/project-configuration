@@ -1,4 +1,4 @@
-import { Rectangle } from './shapes.js';
+import { Rectangle } from;
 
 const canvas = document.getElementById('myCanvas') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d');
@@ -12,7 +12,7 @@ if (ctx) {
   rect2.draw(ctx);
   rect3.draw(ctx);
 }
-import { Rectangle, Circle } from './shapes.js';
+import { Rectangle, Circle } from;
 
 const canvas = document.getElementById('myCanvas') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d');
@@ -30,7 +30,7 @@ if (ctx) {
   circle1.draw(ctx);
   circle2.draw(ctx);
 }
-import { Rectangle, Circle } from './shapes.js';
+import { Rectangle, Circle } from;
 
 const canvas = document.getElementById('myCanvas') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d');
@@ -49,7 +49,7 @@ if (ctx) {
   circle2.draw(ctx);
 }
 
-import { Point, Size, Shape } from './shapes.js';
+import { Point, Size, Shape } from;
 
 export class Rectangle extends Shape {
   location: Point;
@@ -68,4 +68,23 @@ export class Rectangle extends Shape {
     ctx.stroke();
   }
 }
+import { Rectangle, Circle } from;
+
+const canvas = document.getElementById('myCanvas') as HTMLCanvasElement;
+const ctx = canvas.getContext('2d');
+
+if (ctx) {
+  const rect1 = new Rectangle(40, 50, 200, 100, 'red');
+  const rect2 = new Rectangle(300, 100, 150, 80, 'blue');
+
+  rect1.draw(ctx);
+  rect2.draw(ctx);
+
+  const circle1 = new Circle(150, 300, 40, 'green');
+  const circle2 = new Circle(400, 250, 60, 'purple');
+
+  circle1.draw(ctx);
+  circle2.draw(ctx);
+}
+
 
