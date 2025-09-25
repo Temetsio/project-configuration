@@ -48,3 +48,24 @@ if (ctx) {
   circle1.draw(ctx);
   circle2.draw(ctx);
 }
+
+import { Point, Size, Shape } from './shapes.js';
+
+export class Rectangle extends Shape {
+  location: Point;
+  size: Size;
+
+  constructor(x: number, y: number, width: number, height: number, style: string = 'black') {
+    super(style); // call to Shape constructor
+    this.location = new Point(x, y);
+    this.size = new Size(width, height);
+  }
+
+  draw(ctx: CanvasRenderingContext2D) {
+    ctx.beginPath();
+    ctx.strokeStyle = this.style;
+    ctx.rect(this.location.x, this.location.y, this.size.width, this.size.height);
+    ctx.stroke();
+  }
+}
+
