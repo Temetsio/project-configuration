@@ -34,4 +34,33 @@ export class Circle {
     ctx.stroke();
   }
 }
+// Add this at the top of shapes.ts
+
+export class Style {
+  strokeStyle: string;
+  fillStyle: string;
+  lineWidth: number;
+  fill: boolean;
+
+  constructor(
+    strokeStyle: string = 'black',
+    fillStyle: string = '',
+    lineWidth: number = 1,
+    fill: boolean = false
+  ) {
+    this.strokeStyle = strokeStyle;
+    this.fillStyle = fillStyle;
+    this.lineWidth = lineWidth;
+    this.fill = fill;
+  }
+
+  apply(ctx: CanvasRenderingContext2D) {
+    ctx.strokeStyle = this.strokeStyle;
+    ctx.lineWidth = this.lineWidth;
+    if (this.fill) {
+      ctx.fillStyle = this.fillStyle;
+    }
+  }
+}
+
 
