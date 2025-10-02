@@ -53,11 +53,28 @@ export class BaseShape implements Shape {
     return `Shape with style ${this.style}`;
   }
 }
-protected style: string;
+import { Shape } from './ShapeInterface';
 
-getStyle(): string
-draw(ctx: CanvasRenderingContext2D): void
-toString(): string
+export class BaseShape implements Shape {
+  private style: string;
+
+  public constructor(style: string) {
+    this.style = style;
+  }
+
+  public getStyle(): string {
+    return this.style;
+  }
+
+  public draw(ctx: CanvasRenderingContext2D): void {
+    // default empty implementation
+  }
+
+  public toString(): string {
+    return `Shape with style ${this.style}`;
+  }
+}
+
 
 
 
