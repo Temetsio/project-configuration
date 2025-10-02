@@ -68,5 +68,28 @@ export class Rectangle extends BaseShape {
     // Implement draw logic for rectangle
   }
 }
+import { BaseShape } from './BaseShape';
+import { Point } from './Point';
+import { Size } from './Size';
+
+export class Rectangle extends BaseShape {
+  private location: Point;
+  private size: Size;
+
+  public constructor(location: Point, size: Size, style: string) {
+    super(style);
+    this.location = location;
+    this.size = size;
+  }
+
+  public draw(ctx: CanvasRenderingContext2D): void {
+    // Implementation for drawing rectangle
+  }
+
+  public toString(): string {
+    return `Rectangle with location ${this.location.x}, ${this.location.y}, size ${this.size.width}x${this.size.height} and style ${this.getStyle()}`;
+  }
+}
+
 
 
