@@ -48,4 +48,25 @@ export class Rectangle extends Shape {
     return `Rectangle with location ${this.location}, size ${this.size} and style ${this.getStyle()}`;
   }
 }
+import { BaseShape } from './BaseShape';
+
+export class Rectangle extends BaseShape {
+  private location: string;
+  private size: string;
+
+  constructor(location: string, size: string, style: string) {
+    super(style);
+    this.location = location;
+    this.size = size;
+  }
+
+  public toString(): string {
+    return `Rectangle with location ${this.location}, size ${this.size} and style ${this.getStyle()}`;
+  }
+
+  public draw(ctx: CanvasRenderingContext2D): void {
+    // Implement draw logic for rectangle
+  }
+}
+
 
