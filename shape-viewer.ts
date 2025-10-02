@@ -83,3 +83,18 @@ export class ShapeViewer {
     }
   }
 }
+import { ShapeViewer } from './ShapeViewer';
+import { Rectangle } from './Rectangle';
+import { Circle } from './Circle';
+
+const viewer = new ShapeViewer();
+
+// Add shapes
+viewer.addShape(new Rectangle('10, 20', '100x200', 'solid red'));
+viewer.addShape(new Circle('30, 40', 50, 'dotted blue'));
+
+// Log the string representation of each shape
+for (const shape of viewer.shapes) {
+  console.log(shape.toString());
+}
+
