@@ -32,3 +32,20 @@ export class Size {
     this.height = height;
   }
 }
+import { Shape } from './Shape';
+
+export class Rectangle extends Shape {
+  private location: string;
+  private size: string;
+
+  constructor(location: string, size: string, style: string) {
+    super(style);
+    this.location = location;
+    this.size = size;
+  }
+
+  public toString(): string {
+    return `Rectangle with location ${this.location}, size ${this.size} and style ${this.getStyle()}`;
+  }
+}
+
