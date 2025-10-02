@@ -97,11 +97,34 @@ viewer.addShape(new Circle('30, 40', 50, 'dotted blue'));
 for (const shape of viewer.shapes) {
   console.log(shape.toString());
 }
-ctx: CanvasRenderingContext2D;
-shapes: Shape[];
-constructor(canvasElement: HTMLCanvasElement)
-addShapes(shapes: Shape[]): void
-addShape(shape: Shape): void
-draw(): void
+export class ShapeViewer {
+  private ctx: CanvasRenderingContext2D;
+  private shapes: Shape[] = [];
+
+  public constructor(canvasElement: HTMLCanvasElement) {
+    this.ctx = canvasElement.getContext('2d')!;
+  }
+
+  public addShapes(shapes: Shape[]): void {
+    for (const shape of shapes) {
+      this.shapes.push(shape);
+    }
+    this.draw();
+  }
+
+  public addShape(shape: Shape): void {
+    this.shapes.push(shape);
+    this.draw();
+  }
+
+  private draw(): void {
+    // clear canvas before drawing
+    this.ctx.clearRect(0, 0, 1000, 1000); // assuming default size
+    for (const shape of this.shapes) {
+      shape.draw(this.ctx);
+    }
+  }
+}
+
 
 
