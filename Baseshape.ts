@@ -74,6 +74,29 @@ export class BaseShape implements Shape {
     return `Shape with style ${this.style}`;
   }
 }
+import { Shape } from './ShapeInterface';
+
+
+export class BaseShape implements Shape {
+  // The style of the shape (e.g., color, stroke).
+  private style: string;
+
+  public constructor(style: string) {
+    this.style = style;
+  }
+
+  public getStyle(): string {
+    return this.style;
+  }
+
+  public draw(ctx: CanvasRenderingContext2D): void {
+ 
+  }
+  public toString(): string {
+    return `Shape with style ${this.style}`;
+  }
+}
+
 
 
 
