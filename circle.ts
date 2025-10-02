@@ -48,4 +48,25 @@ export class Circle extends Shape {
     return `Circle with center ${this.center}, radius ${this.radius} and style ${this.getStyle()}`;
   }
 }
+import { BaseShape } from './BaseShape';
+
+export class Circle extends BaseShape {
+  private center: string;
+  private radius: number;
+
+  constructor(center: string, radius: number, style: string) {
+    super(style);
+    this.center = center;
+    this.radius = radius;
+  }
+
+  public toString(): string {
+    return `Circle with center ${this.center}, radius ${this.radius} and style ${this.getStyle()}`;
+  }
+
+  public draw(ctx: CanvasRenderingContext2D): void {
+    // Implement draw logic for circle
+  }
+}
+
 
