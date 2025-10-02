@@ -53,5 +53,11 @@ export class BaseShape implements Shape {
     return `Shape with style ${this.style}`;
   }
 }
+protected style: string;
+
+getStyle(): string
+draw(ctx: CanvasRenderingContext2D): void
+toString(): string
+
 
 
