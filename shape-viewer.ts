@@ -97,4 +97,11 @@ viewer.addShape(new Circle('30, 40', 50, 'dotted blue'));
 for (const shape of viewer.shapes) {
   console.log(shape.toString());
 }
+ctx: CanvasRenderingContext2D;
+shapes: Shape[];
+constructor(canvasElement: HTMLCanvasElement)
+addShapes(shapes: Shape[]): void
+addShape(shape: Shape): void
+draw(): void
+
 
