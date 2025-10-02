@@ -32,4 +32,26 @@ export class Shape {
     return `Shape with style ${this.style}`;
   }
 }
+import { Shape } from './ShapeInterface';
+
+export class BaseShape implements Shape {
+  protected style: string;
+
+  constructor(style: string) {
+    this.style = style;
+  }
+
+  public getStyle(): string {
+    return this.style;
+  }
+
+  public draw(ctx: CanvasRenderingContext2D): void {
+    // Base draw does nothing
+  }
+
+  public toString(): string {
+    return `Shape with style ${this.style}`;
+  }
+}
+
 
