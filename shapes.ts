@@ -17,3 +17,19 @@ export class Rectangle {
     ctx.stroke();
   }
 }
+export class Shape {
+  protected style: string;
+
+  constructor(style: string) {
+    this.style = style;
+  }
+
+  public getStyle(): string {
+    return this.style;
+  }
+
+  public toString(): string {
+    return `Shape with style ${this.style}`;
+  }
+}
+
