@@ -32,3 +32,20 @@ export class Circle {
     ctx.stroke();
   }
 }
+import { Shape } from './Shape';
+
+export class Circle extends Shape {
+  private center: string;
+  private radius: number;
+
+  constructor(center: string, radius: number, style: string) {
+    super(style);
+    this.center = center;
+    this.radius = radius;
+  }
+
+  public toString(): string {
+    return `Circle with center ${this.center}, radius ${this.radius} and style ${this.getStyle()}`;
+  }
+}
+
