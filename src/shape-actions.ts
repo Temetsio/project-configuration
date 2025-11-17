@@ -45,3 +45,9 @@ export class AddShapeAction extends BaseAction {
     console.log(`Executing ${this.name}`);
   }
 }
+public onClick(e: MouseEvent): void {
+    console.log("AddShapeAction onClick triggered!");
+
+    const shape = this._shapeClass.initWithXY(e.offsetX, e.offsetY);
+    this.shapeViewer.addShape(shape);
+}
