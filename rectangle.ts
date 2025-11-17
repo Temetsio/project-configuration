@@ -90,6 +90,17 @@ export class Rectangle extends BaseShape {
     return `Rectangle with location ${this.location.x}, ${this.location.y}, size ${this.size.width}x${this.size.height} and style ${this.getStyle()}`;
   }
 }
+export class Rectangle extends Shape {
+    constructor(x: number, y: number, public width: number, public height: number) {
+        super(x, y);
+    }
+
+    public static initWithXY(x: number, y: number): Rectangle {
+        return new Rectangle(x, y, 100, 100);  
+    }
+}
+
+
 
 
 
