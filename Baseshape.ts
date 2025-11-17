@@ -96,6 +96,13 @@ export class BaseShape implements Shape {
     return `Shape with style ${this.style}`;
   }
 }
+export abstract class Shape {
+
+    public static initWithXY(x: number, y: number): Shape {
+        throw new Error("initWithXY must be implemented in subclass!");
+    }
+}
+
 
 
 
