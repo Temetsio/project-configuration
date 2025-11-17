@@ -82,13 +82,23 @@ export class Circle extends BaseShape {
   }
 
   public draw(ctx: CanvasRenderingContext2D): void {
-    // Implementation for drawing circle
   }
 
   public toString(): string {
     return `Circle with center ${this.center.x}, ${this.center.y}, radius ${this.radius} and style ${this.getStyle()}`;
   }
 }
+export class Circle extends Shape {
+    constructor(x: number, y: number, public radius: number) {
+        super(x, y);
+    }
+
+    public static initWithXY(x: number, y: number): Circle {
+        return new Circle(x, y, 50); 
+    }
+}
+
+
 
 
 
