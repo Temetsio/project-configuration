@@ -1,1 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Shape Editor</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{--ui-bg:#f3f4f6;--panel:#fff;--accent:#2563eb}
+    body{margin:0;font-family:Segoe UI,Roboto,Helvetica,Arial;background:var(--ui-bg);height:100vh;display:flex;flex-direction:column}
+    header{display:flex;gap:8px;padding:10px;background:var(--panel);align-items:center;border-bottom:1px solid #e6e7e8}
+    button,select,input[type=color]{padding:8px 10px;border-radius:6px;border:1px solid #d1d5db;background:#fff;cursor:pointer}
+    button.primary{background:var(--accent);color:#fff;border-color:transparent}
+    #container{flex:1;display:flex;gap:12px;padding:12px}
+    #left{width:260px;display:flex;flex-direction:column;gap:8px}
+    #layers{flex:1;overflow:auto;background:var(--panel);padding:8px;border-radius:6px;border:1px solid #e6e7e8}
+    #canvas-wrap{flex:1;background:#fff;border-radius:6px;border:1px solid #e6e7e8;position:relative;display:flex;align-items:stretch;justify-content:stretch}
+    svg{width:100%;height:100%;touch-action:none;background:linear-gradient(90deg,#fafafa 50%,#fff)}
+    .tool-row{display:flex;gap:8px;flex-wrap:wrap}
+    .handle{fill:#fff;stroke:#333;stroke-width:1;pointer-events:auto}
+    .selected-outline{fill:none;stroke:#2563eb;stroke-dasharray:4 2;pointer-events:none}
+    .layer-item{padding:6px;border-radius:4px;display:flex;align-items:center;gap:8px;border:1px solid transparent}
+    .layer-item.selected{background:#eef2ff;border-color:#dbeafe}
+    footer{padding:8px;background:var(--panel);border-top:1px solid #e6e7e8;text-align:right}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="tool-row">
+      <button id="add-rect">Rectangle</button>
+      <button id="add-circle">Circle</button>
+      <button id="add-triangle">Triangle</button>
+      <input id="fill" type="color" value="#ff6b6b" title="Fill color"> 
+      <button id="bring-front">Bring front</button>
+      <button id="send-back">Send back</button>
+      <button id="delete" style="background:#fca5a5">Delete</button>
+      <button id="export" class="primary">Export SVG</button>
+    </div>
+  </header>
 
+  <div id="container">
+    <div id="left">
+      <div style="font-weight:600">Layers</div>
+      <div id="layers"></div>
+      <div style="font-weight:600;margin-top:8px">Instructions</div>
+      <div style="font-size:13px;color:#374151">
+        Click a shape to select. Drag to move. Use corner handles to resize. Change color with the color picker. Export to SVG.
+      </div>
+    </div>
+
+    <div id="canvas-wrap">
+      <svg id="canvas" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <style>.shape{cursor:move}</style>
+        </defs>
+
+        <!-- selection visuals -->
+        <rect id="selectionRect" class="selected-outline" x="0" y="0" width="0" height="0" visibility="hidden"></rect>
+        <!-- handles -->
+        <circle id="handle-nw" class="handle" r="6" visibility="hidden"></circle>
+        <circle id="handle-ne" class="handle" r="6" visibility="hidden"></circle>
+        <circle id="handle-sw" class="handle" r="6" visibility="hidden"></circle>
+        <circle id="handle-se" class="handle" r="6" visibility="hidden"></circle>
+      </svg>
+    </div>
+  </div>
+
+  <footer>Shape Editor — simple SVG-based editor</footer>
+
+  <script>
+    // Basic SVG shape editor with selection, drag, resize and color change.
+    const svg = document.getElementById('canvas');
+    const selectionRect = document.getElementById('selectionRect');
+    const handles = {
+      nw: document.getElementById('handle-nw'),
+      ne: document.getElementById('handle-ne'),
+      sw: document.getElementById('handle-sw'),
+      se: document.getElementById('handle-se'),
+    };
+    const layersEl = document.getElementById('layers');
+    const colorInput = document.getElementById('fill');
+
+    let shapes = []; // simple order list
+    let selected = null;
+    let mode = null; // 'drag'|'resize'|null
+    let pointerStart = null;
+    let shapeStart = null;
+    let activeHandle = null;
+
+    function createShape(type, opts = {}) {
+      let el;
+      const fill = opts.fill || colorInput.value;
+      if (type === 'rect') {
+        el = document.createElementNS(svg.namespaceURI, 'rect');
+        el.setAttribute('x', 100);
+        el.setAttribute('y', 80);
+        el.setAttribute('width', 160);
+        el.setAttribute('height', 100);
+      } else if (type === 'circle') {
+        el = document.createElementNS(svg.namespaceURI, 'circle');
+        el.setAttribute('cx', 200);
+        el.setAttribute('cy', 150);
+        el.setAttribute('r', 60);
+      } else if (type === 'triangle') {
+        el = document.createElementNS(svg.namespaceURI, 'polygon');
+        el.setAttribute('points', '160,40 240,200 80,200');
+      }
+      el.classList.add('shape');
+      el.setAttribute('fill', fill);
+      el.setAttribute('stroke', '#222');
+      el.setAttribute('stroke-width', 1);
+      el.dataset.type = type;
+      el.addEventListener('pointerdown', e => selectShape(e, el));
+      svg.appendChild(el);
+      shapes.push(el);
+      renderLayers();
+      select(el);
+    }
+
+    function renderLayers(){
+      layersEl.innerHTML = '';
+      for (let i = shapes.length-1; i >= 0; i--) {
+        const s = shapes[i];
+        const item = document.createElement('div');
+        item.className = 'layer-item' + (s === selected ? ' selected' : '');
+        item.textContent = s.dataset.type + ' • ' + (s.getAttribute('fill') || '');
+        item.onclick = ()=>select(s);
+        layersEl.appendChild(item);
+      }
+    }
+
+    function selectShape(evt, el) {
+      evt.stopPropagation();
+      select(el);
+      // start drag
+      const p = getPoint(evt);
+      pointerStart = p;
+      shapeStart = getShapeState(el);
+      mode = 'drag';
+      svg.setPointerCapture(evt.pointerId);
+    }
+
+    function select(el) {
+      if (selected === el) { updateSelectionVisuals(); return; }
+      selected = el;
+      updateSelectionVisuals();
+      renderLayers();
+    }
+
+    function clearSelection() {
+      selected = null;
+      selectionRect.setAttribute('visibility','hidden');
+      for (const h of Object.values(handles)) h.setAttribute('visibility','hidden');
+      renderLayers();
+    }
+
+    function updateSelectionVisuals() {
+      if (!selected) { clearSelection(); return; }
+      const bb = selected.getBBox();
+      selectionRect.setAttribute('x', bb.x - 6);
+      selectionRect.setAttribute('y', bb.y - 6);
+      selectionRect.setAttribute('width', bb.width + 12);
+      selectionRect.setAttribute('height', bb.height + 12);
+      selectionRect.setAttribute('visibility','visible');
+      // place handles
+      handles.nw.setAttribute('cx', bb.x - 6); handles.nw.setAttribute('cy', bb.y - 6); handles.nw.setAttribute('visibility','visible');
+      handles.ne.setAttribute('cx', bb.x + bb.width + 6); handles.ne.setAttribute('cy', bb.y - 6); handles.ne.setAttribute('visibility','visible');
+      handles.sw.setAttribute('cx', bb.x - 6); handles.sw.setAttribute('cy', bb.y + bb.height + 6); handles.sw.setAttribute('visibility','visible');
+      handles.se.setAttribute('cx', bb.x + bb.width + 6); handles.se.setAttribute('cy', bb.y + bb.height + 6); handles.se.setAttribute('visibility','visible');
+    }
+
+    // handle pointer events for resize handles
+    for (const [name, h] of Object.entries(handles)) {
+      h.addEventListener('pointerdown', (e) => {
+        if (!selected) return;
+        e.stopPropagation();
+        pointerStart = getPoint(e);
+        shapeStart = getShapeState(selected);
+        mode = 'resize';
+        activeHandle = name;
+        svg.setPointerCapture(e.pointerId);
+      });
+    }
+
+    // canvas pointerdown - clear selection
+    svg.addEventListener('pointerdown', e => {
+      if (e.target === svg) {
+        clearSelection();
+      }
+    });
+
+    window.addEventListener('pointermove', e => {
+      if (!mode || !selected || !pointerStart) return;
+      const p = getPoint(e);
+      const dx = p.x - pointerStart.x;
+      const dy = p.y - pointerStart.y;
+      if (mode === 'drag') {
+        applyDrag(selected, shapeStart, dx, dy);
+      } else if (mode === 'resize') {
+        applyResize(selected, shapeStart, dx, dy, activeHandle);
+      }
+      updateSelectionVisuals();
+    });
+
+    window.addEventListener('pointerup', e => {
+      if (!mode) return;
+      mode = null;
+      activeHandle = null;
+      pointerStart = null;
+      shapeStart = null;
+      try { svg.releasePointerCapture(e.pointerId); } catch {}
+      renderLayers();
+    });
+
+    function applyDrag(el, start, dx, dy) {
+      const t = el.dataset.type;
+      if (t === 'rect') {
+        el.setAttribute('x', start.x + dx);
+        el.setAttribute('y', start.y + dy);
+      } else if (t === 'circle') {
+        el.setAttribute('cx', start.cx + dx);
+        el.setAttribute('cy', start.cy + dy);
+      } else if (t === 'triangle') {
+        const pts = start.points.map(p => ({x: p.x + dx, y: p.y + dy}));
+        el.setAttribute('points', pts.map(p => `${p.x},${p.y}`).join(' '));
+      }
+    }
+
+    function applyResize(el, start, dx, dy, handle) {
+      const t = el.dataset.type;
+      if (t === 'rect') {
+        let x = start.x, y = start.y, w = start.width, h = start.height;
+        if (handle.includes('n')) { y = start.y + dy; h = start.height - dy; }
+        if (handle.includes('s')) { h = start.height + dy; }
+        if (handle.includes('w')) { x = start.x + dx; w = start.width - dx; }
+        if (handle.includes('e')) { w = start.width + dx; }
+        w = Math.max(8, w); h = Math.max(8, h);
+        el.setAttribute('x', x); el.setAttribute('y', y); el.setAttribute('width', w); el.setAttribute('height', h);
+      } else if (t === 'circle') {
+        // scale radius based on diagonal handle movement
+        const center = {x: start.cx, y: start.cy};
+        const corner = {x: start.cx + start.r, y: start.cy + start.r};
+        // approximate: new r = distance from center to moved corner
+        const movedCorner = {x: corner.x + dx * (handle.includes('e')?1:-1), y: corner.y + dy * (handle.includes('s')?1:-1)};
+        const r = Math.max(6, Math.hypot(movedCorner.x - center.x, movedCorner.y - center.y));
+        el.setAttribute('r', r);
+      } else if (t === 'triangle') {
+        // scale uniformly from centroid
+        const pts = start.points;
+        const cx = pts.reduce((s,p)=>s+p.x,0)/3;
+        const cy = pts.reduce((s,p)=>s+p.y,0)/3;
+        // scale factor approx from handle movement
+        const factor = 1 + ((dx + dy) / 200) * ( (handle.includes('n')||handle.includes('w')) ? -1 : 1 );
+        const newPts = pts.map(p => ({x: cx + (p.x - cx) * factor, y: cy + (p.y - cy) * factor}));
+        el.setAttribute('points', newPts.map(p=>`${p.x},${p.y}`).join(' '));
+      }
+    }
+
+    function getShapeState(el) {
+      const t = el.dataset.type;
+      if (t === 'rect') {
+        return {x: parseFloat(el.getAttribute('x')), y: parseFloat(el.getAttribute('y')), width: parseFloat(el.getAttribute('width')), height: parseFloat(el.getAttribute('height'))};
+      } else if (t === 'circle') {
+        return {cx: parseFloat(el.getAttribute('cx')), cy: parseFloat(el.getAttribute('cy')), r: parseFloat(el.getAttribute('r'))};
+      } else if (t === 'triangle') {
+        const pts = el.getAttribute('points').trim().split(/\s+/).map(p => { const [x,y]=p.split(',').map(Number); return {x,y}; });
+        return {points: pts};
+      }
+      return {};
+    }
+
+    function getPoint(evt) {
+      const pt = svg.createSVGPoint();
+      pt.x = evt.clientX; pt.y = evt.clientY;
+      const ctm = svg.getScreenCTM().inverse();
+      const p = pt.matrixTransform(ctm);
+      return {x: p.x, y: p.y};
+    }
+
+    // UI bindings
+    document.getElementById('add-rect').onclick = () => createShape('rect');
+    document.getElementById('add-circle').onclick = () => createShape('circle');
+    document.getElementById('add-triangle').onclick = () => createShape('triangle');
+
+    colorInput.addEventListener('input', () => {
+      if (selected) selected.setAttribute('fill', colorInput.value);
+      renderLayers();
+    });
+
+    document.getElementById('delete').onclick = () => {
+      if (!selected) return;
+      const idx = shapes.indexOf(selected);
+      if (idx >= 0) shapes.splice(idx,1);
+      selected.remove();
+      selected = null;
+      updateSelectionVisuals();
+      renderLayers();
+    };
+
+    document.getElementById('bring-front').onclick = () => {
+      if (!selected) return;
+      const idx = shapes.indexOf(selected);
+      if (idx >= 0) {
+        shapes.splice(idx,1);
+        shapes.push(selected);
+        svg.appendChild(selected);
+        renderLayers();
+      }
+    };
+
+    document.getElementById('send-back').onclick = () => {
+      if (!selected) return;
+      const idx = shapes.indexOf(selected);
+      if (idx >= 0) {
+        shapes.splice(idx,1);
+        shapes.unshift(selected);
+        svg.insertBefore(selected, svg.firstChild);
+        renderLayers();
+      }
+    };
+
+    document.getElementById('export').onclick = () => {
+      // clone svg, remove editor handles, serialize
+      const clone = svg.cloneNode(true);
+      // remove handles and selection visuals
+      clone.querySelectorAll('#selectionRect, #handle-nw, #handle-ne, #handle-sw, #handle-se').forEach(n=>n.remove());
+      const serializer = new XMLSerializer();
+      const str = '<?xml version="1.0" encoding="UTF-8"?>\n' + serializer.serializeToString(clone);
+      const blob = new Blob([str], {type:'image/svg+xml'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'shapes.svg';
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    };
+
+    // allow selecting shapes by clicking layer items in renderLayers (already wired)
+    // init with
